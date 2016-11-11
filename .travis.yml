@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: RbgBxKsiuP7/YKGo2+dS4HphQbSjDriZHPHaKlPl8S/+nMRYrNiuojEU4otpTDLrrP5cBSl8RqabPmS+JP9Lpr/Feudi5T+EgN3RtmlQne9708DmNcnhBcHHPXHQjvIj8QHOqXz/15Mbu41OU3uA2F36UWdvMeIGry3O63rzLuVmDGtzD1bM9dcw8tWCrLT9oCtMp8+vu7tb34YrSLfElvdsNlFN16uH2/xiD10VTjT/xpfpHcuCWYJWtuGDnaSQ8BUTUjfz5J8YbD6aM9Ev4af0ht8x/tmhQtrSyj23WTUZEd6FZk8eJOBvKR7/YmjJudnbAY+d92fxdLg7qPvG//uXg9sIHe7wCekj979AhkIoNW2a4m4QbyWmyufJ5IWWP8q6wQHCisgbjcbcT4qNMN8Spl4ZlR34BsckPV0qZGmNz+oM1NQTa6z7W++PYmvfzxb2AccmrVxYusZ7h+8tahP02OnMoDccYUEuNxpR0b+4EIP3G4hoMxVla1k8StiMwAGCATRppDtEs9l8TnCRZv9dFsalbI0rqBrLOwU0kp+6qG+5EMcUD6EYHXoTFg+R1+fVSwTfx4CK/a12fl3rTTRR34NMUnbRzvqY2OJWmswNO1saeQ/VGFeaJndi9UB+fJQx2O4D2ErGzVBS/R0RKNMsr2CFEEOh9SSKBZBQJbU=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Bride-of-the-Nile-Volume-02_5518
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
